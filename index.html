@@ -1,0 +1,941 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RSS Feed Generator</title>
+
+<meta name="description"
+      content="Generate RSS podcast feeds from 1 to 1000 URLs directly in your browser.">
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f7fb;
+  color: #172033;
+}
+
+.container {
+  width: min(1100px, calc(100% - 30px));
+  margin: 35px auto;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e2e7ef;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 5px 25px rgba(0,0,0,.05);
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+.subtitle {
+  color: #687386;
+  margin-bottom: 25px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field.full {
+  grid-column: 1 / -1;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  border: 1px solid #ccd4df;
+  border-radius: 9px;
+  padding: 12px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #536dfe;
+}
+
+textarea {
+  min-height: 180px;
+  resize: vertical;
+  font-family: Consolas, monospace;
+}
+
+.url-box {
+  min-height: 360px;
+}
+
+.counter {
+  margin-top: 7px;
+  font-size: 13px;
+  color: #687386;
+}
+
+.counter strong {
+  color: #172033;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #536dfe;
+  color: white;
+}
+
+.btn-success {
+  background: #159957;
+  color: white;
+}
+
+.btn-secondary {
+  background: #e9edf3;
+  color: #273244;
+}
+
+.btn-danger {
+  background: #e5484d;
+  color: white;
+}
+
+button:hover {
+  opacity: .9;
+}
+
+.status {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 9px;
+  background: #f1f5ff;
+  color: #34415a;
+  display: none;
+}
+
+.preview {
+  width: 100%;
+  min-height: 450px;
+  background: #111827;
+  color: #dbeafe;
+  border-radius: 10px;
+  padding: 16px;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  overflow: auto;
+  white-space: pre;
+}
+
+.note {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #687386;
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #edf1ff;
+  color: #4054c7;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.example {
+  background: #f7f9fc;
+  border: 1px dashed #cdd5e1;
+  border-radius: 9px;
+  padding: 12px;
+  margin-top: 10px;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 700px) {
+  .container {
+    width: min(100% - 18px, 1100px);
+    margin: 15px auto;
+  }
+
+  .card {
+    padding: 17px;
+    border-radius: 12px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field.full {
+    grid-column: auto;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card">
+    <span class="badge">100% CLIENT-SIDE</span>
+
+    <h1>RSS Feed Generator</h1>
+
+    <div class="subtitle">
+      Generate a podcast RSS feed from up to 1,000 URLs.
+      Everything is processed directly in your browser.
+    </div>
+
+    <div class="grid">
+
+      <div class="field">
+        <label for="feedTitle">Feed Title</label>
+        <input id="feedTitle"
+               value="My Podcast"
+               placeholder="My Podcast">
+      </div>
+
+      <div class="field">
+        <label for="author">Author</label>
+        <input id="author"
+               value=""
+               placeholder="Podcast Author">
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email"
+               type="email"
+               placeholder="you@example.com">
+      </div>
+
+      <div class="field">
+        <label for="website">Website URL</label>
+        <input id="website"
+               type="url"
+               placeholder="https://example.com">
+      </div>
+
+      <div class="field full">
+        <label for="description">Feed Description</label>
+        <textarea id="description"
+                  style="min-height:110px"
+                  placeholder="Podcast description..."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="artwork">Artwork URL</label>
+        <input id="artwork"
+               type="url"
+               placeholder="https://example.com/artwork.jpg">
+      </div>
+
+      <div class="field">
+        <label for="language">Language</label>
+        <select id="language">
+          <option value="en-us">English (US)</option>
+          <option value="en-gb">English (UK)</option>
+          <option value="id-id">Indonesian</option>
+          <option value="es-es">Spanish</option>
+          <option value="fr-fr">French</option>
+          <option value="de-de">German</option>
+          <option value="it-it">Italian</option>
+          <option value="pt-br">Portuguese (Brazil)</option>
+          <option value="pt-pt">Portuguese (Portugal)</option>
+          <option value="ja-jp">Japanese</option>
+          <option value="ko-kr">Korean</option>
+          <option value="zh-cn">Chinese</option>
+          <option value="vi-vn">Vietnamese</option>
+          <option value="th-th">Thai</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="category">Category</label>
+        <input id="category"
+               value="TV & Film"
+               placeholder="TV & Film">
+      </div>
+
+      <div class="field">
+        <label for="copyright">Copyright</label>
+        <input id="copyright"
+               placeholder="© 2026 My Podcast">
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="card">
+
+    <h2>Episode URLs</h2>
+
+    <div class="note">
+      One URL per line.
+      You can also use:
+      <b>Title | URL</b>
+    </div>
+
+    <div class="example">https://example.com/movie-1
+Movie Two | https://example.com/movie-2
+Movie Three | https://example.com/movie-3</div>
+
+    <br>
+
+    <textarea
+      id="urlInput"
+      class="url-box"
+      placeholder="https://example.com/page-1
+https://example.com/page-2
+Movie Title | https://example.com/page-3"></textarea>
+
+    <div class="counter">
+      URLs:
+      <strong id="urlCount">0</strong>
+      / 1,000
+    </div>
+
+    <div class="buttons">
+      <button class="btn-primary" onclick="generateRSS()">
+        Generate RSS
+      </button>
+
+      <button class="btn-success" onclick="downloadRSS()">
+        Download rss.xml
+      </button>
+
+      <button class="btn-secondary" onclick="copyRSS()">
+        Copy XML
+      </button>
+
+      <button class="btn-danger" onclick="clearAll()">
+        Clear
+      </button>
+    </div>
+
+    <div id="status" class="status"></div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2>Generated RSS XML</h2>
+
+    <pre id="preview" class="preview">RSS XML will appear here...</pre>
+
+  </div>
+
+</div>
+
+
+<script>
+
+let generatedXML = "";
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function escapeXML(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+
+}
+
+
+function escapeCDATA(value) {
+
+  return String(value ?? "")
+    .replace(/\]\]>/g, "]]]]><![CDATA[>");
+
+}
+
+
+function slugToTitle(text) {
+
+  try {
+
+    text = decodeURIComponent(text);
+
+  } catch (e) {}
+
+  text = text
+    .replace(/[-_]+/g, " ")
+    .replace(/\.(html?|php|aspx?|jsp)$/i, "")
+    .replace(/\d{4,}$/g, "")
+    .trim();
+
+  if (!text) {
+    return "Episode";
+  }
+
+  return text
+    .replace(/\s+/g, " ")
+    .replace(/\b\w/g, char => char.toUpperCase());
+
+}
+
+
+function titleFromURL(url) {
+
+  try {
+
+    const u = new URL(url);
+
+    let path = u.pathname
+      .split("/")
+      .filter(Boolean)
+      .pop() || u.hostname;
+
+    return slugToTitle(path);
+
+  } catch (e) {
+
+    return slugToTitle(url);
+
+  }
+
+}
+
+
+function makeGuid(url, index) {
+
+  return "rss-item-" +
+         (index + 1) +
+         "-" +
+         simpleHash(url);
+
+}
+
+
+function simpleHash(str) {
+
+  let hash = 0;
+
+  for (let i = 0; i < str.length; i++) {
+
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+
+    hash |= 0;
+  }
+
+  return Math.abs(hash).toString(36);
+
+}
+
+
+function formatRFC822(date) {
+
+  return date.toUTCString();
+
+}
+
+
+/* =========================================================
+   PARSE INPUT
+========================================================= */
+
+function parseEpisodes() {
+
+  const raw = document
+    .getElementById("urlInput")
+    .value
+    .split(/\r?\n/);
+
+  const episodes = [];
+
+  for (const lineRaw of raw) {
+
+    const line = lineRaw.trim();
+
+    if (!line) continue;
+
+    let title = "";
+    let url = "";
+
+    /*
+      Supported:
+
+      URL
+
+      Title | URL
+    */
+
+    if (line.includes("|")) {
+
+      const parts = line.split("|");
+
+      title = parts.shift().trim();
+
+      url = parts.join("|").trim();
+
+    } else {
+
+      url = line;
+
+      title = titleFromURL(url);
+
+    }
+
+    if (!url) continue;
+
+    /*
+      Basic URL validation
+    */
+
+    try {
+
+      new URL(url);
+
+    } catch (e) {
+
+      continue;
+
+    }
+
+    episodes.push({
+      title: title || titleFromURL(url),
+      url: url
+    });
+
+    if (episodes.length >= 1000) {
+      break;
+    }
+
+  }
+
+  return episodes;
+
+}
+
+
+/* =========================================================
+   BUILD RSS
+========================================================= */
+
+function buildRSSXML(episodes) {
+
+  const feedTitle =
+    document.getElementById("feedTitle").value.trim()
+    || "My Podcast";
+
+  const feedDescription =
+    document.getElementById("description").value.trim()
+    || "Podcast RSS Feed";
+
+  const author =
+    document.getElementById("author").value.trim()
+    || "";
+
+  const email =
+    document.getElementById("email").value.trim()
+    || "";
+
+  const website =
+    document.getElementById("website").value.trim()
+    || "";
+
+  const artwork =
+    document.getElementById("artwork").value.trim()
+    || "";
+
+  const language =
+    document.getElementById("language").value
+    || "en-us";
+
+  const category =
+    document.getElementById("category").value.trim()
+    || "TV & Film";
+
+  const copyright =
+    document.getElementById("copyright").value.trim()
+    || "";
+
+  /*
+    Last generated time.
+  */
+
+  const now = new Date();
+
+  let xml =
+`<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     version="2.0">
+
+<channel>
+
+<title>${escapeXML(feedTitle)}</title>
+`;
+
+  if (website) {
+
+    xml += `<link>${escapeXML(website)}</link>\n`;
+
+  }
+
+  xml +=
+`<description><![CDATA[${escapeCDATA(feedDescription)}]]></description>
+<language>${escapeXML(language)}</language>
+`;
+
+  if (copyright) {
+
+    xml += `<copyright>${escapeXML(copyright)}</copyright>\n`;
+
+  }
+
+  if (author) {
+
+    xml +=
+`<itunes:author>${escapeXML(author)}</itunes:author>
+`;
+
+  }
+
+  if (email) {
+
+    xml +=
+`<itunes:owner>
+<itunes:name>${escapeXML(author || feedTitle)}</itunes:name>
+<itunes:email>${escapeXML(email)}</itunes:email>
+</itunes:owner>
+`;
+
+  }
+
+  if (category) {
+
+    xml +=
+`<itunes:category text="${escapeXML(category)}" />
+`;
+
+  }
+
+  if (artwork) {
+
+    xml +=
+`<itunes:image href="${escapeXML(artwork)}" />
+`;
+
+  }
+
+  if (website) {
+
+    xml +=
+`<atom:link href="${escapeXML(website)}"
+           rel="self"
+           type="application/rss+xml" />
+`;
+
+  }
+
+  xml +=
+`<lastBuildDate>${formatRFC822(now)}</lastBuildDate>
+`;
+
+
+  /*
+    ITEMS
+  */
+
+  episodes.forEach((episode, index) => {
+
+    const pubDate = new Date(
+      now.getTime() - (index * 60 * 60 * 1000)
+    );
+
+    const title = episode.title;
+    const url = episode.url;
+    const guid = makeGuid(url, index);
+
+    /*
+      IMPORTANT:
+
+      These URLs are treated as episode links.
+
+      No audio enclosure is invented because the input
+      contains normal web URLs rather than MP3 URLs.
+    */
+
+    xml +=
+`
+<item>
+<title><![CDATA[${escapeCDATA(title)}]]></title>
+<link>${escapeXML(url)}</link>
+<guid isPermaLink="true">${escapeXML(url)}</guid>
+<description><![CDATA[${escapeCDATA(title)}]]></description>
+<pubDate>${formatRFC822(pubDate)}</pubDate>
+</item>
+`;
+
+  });
+
+
+  xml +=
+`
+</channel>
+</rss>`;
+
+  return xml;
+
+}
+
+
+/* =========================================================
+   GENERATE
+========================================================= */
+
+function generateRSS() {
+
+  const episodes = parseEpisodes();
+
+  if (!episodes.length) {
+
+    showStatus(
+      "Please enter at least one valid URL.",
+      true
+    );
+
+    return;
+
+  }
+
+  generatedXML = buildRSSXML(episodes);
+
+  document.getElementById("preview").textContent =
+    generatedXML;
+
+  showStatus(
+    `Successfully generated RSS with ${episodes.length} episode(s).`,
+    false
+  );
+
+}
+
+
+/* =========================================================
+   DOWNLOAD
+========================================================= */
+
+function downloadRSS() {
+
+  if (!generatedXML) {
+
+    generateRSS();
+
+  }
+
+  if (!generatedXML) return;
+
+  const blob = new Blob(
+    [generatedXML],
+    {
+      type: "application/rss+xml;charset=utf-8"
+    }
+  );
+
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = "rss.xml";
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+  URL.revokeObjectURL(url);
+
+}
+
+
+/* =========================================================
+   COPY
+========================================================= */
+
+async function copyRSS() {
+
+  if (!generatedXML) {
+
+    generateRSS();
+
+  }
+
+  if (!generatedXML) return;
+
+  try {
+
+    await navigator.clipboard.writeText(
+      generatedXML
+    );
+
+    showStatus(
+      "RSS XML copied to clipboard.",
+      false
+    );
+
+  } catch (e) {
+
+    showStatus(
+      "Clipboard access failed. Please copy from the preview.",
+      true
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   CLEAR
+========================================================= */
+
+function clearAll() {
+
+  document.getElementById("urlInput").value = "";
+
+  document.getElementById("preview").textContent =
+    "RSS XML will appear here...";
+
+  generatedXML = "";
+
+  updateCounter();
+
+  showStatus(
+    "Cleared.",
+    false
+  );
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function showStatus(message, error) {
+
+  const box =
+    document.getElementById("status");
+
+  box.style.display = "block";
+
+  box.textContent = message;
+
+  box.style.background =
+    error ? "#fff0f0" : "#f1f5ff";
+
+  box.style.color =
+    error ? "#b42318" : "#34415a";
+
+}
+
+
+/* =========================================================
+   COUNTER
+========================================================= */
+
+function updateCounter() {
+
+  const episodes = parseEpisodes();
+
+  document.getElementById("urlCount")
+    .textContent = episodes.length;
+
+}
+
+
+/* =========================================================
+   LIVE COUNTER
+========================================================= */
+
+document
+  .getElementById("urlInput")
+  .addEventListener(
+    "input",
+    updateCounter
+  );
+
+
+/* =========================================================
+   INITIAL
+========================================================= */
+
+updateCounter();
+
+</script>
+
+</body>
+</html>
+```
